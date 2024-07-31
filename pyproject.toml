@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "aoupy"
+version = "0.0.0.1"
+dependencies = [
+  "polars"
+]
+requires-python = ">=3.9"
+authors = [
+  {name = "Adnan Cihan Cakar", email = "cakar.adnancihan@gmail.com"}
+]
+maintainers = [
+  {name = "Adnan Cihan Cakar", email = "cakar.adnancihan@gmail.com"}
+]
+description = "A toolkit to work with All of Us data."
+readme = "README.md"
+keywords = ["allofus", "bioinformatics"]
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
