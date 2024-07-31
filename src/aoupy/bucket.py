@@ -29,14 +29,14 @@ def read_from_bucket(file_name: str, bucket_id: str = None, lazy: bool = True):
 def copy_to_bucket(file_name: str, target: str, bucket_id: str = None):
     """Copies a file from enviroment workspace to designated bucket space"""
     if bucket_id == None:
-       my_bucket = os.getenv('WORKSPACE_BUCKET')
+       bucket_id = os.getenv('WORKSPACE_BUCKET')
         
     os.system(f"gsutil cp {file_name} {bucket_id}/{target}")
 
 def ls_bucket(target: str = None, bucket_id: str = None):
     """List the files in the given directory in the given bucket"""
     if bucket_id == None:
-       my_bucket = os.getenv('WORKSPACE_BUCKET')
+       bucket_id = os.getenv('WORKSPACE_BUCKET')
     
     if target == None:
         os.system(f"gsutil ls {bucket_id}")
