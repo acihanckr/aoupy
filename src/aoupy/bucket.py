@@ -42,3 +42,10 @@ def ls_bucket(target: str = None, bucket_id: str = None):
         os.system(f"gsutil ls {bucket_id}")
     else:
         os.system(f"gsutil ls {bucket_id}/{target}")
+
+def remove_from_bucket(file_path: str, bucket_id:str = None):
+    """Removes the file from the bucket"""
+    
+    if bucket_id == None:
+       bucket_id = os.getenv('WORKSPACE_BUCKET')
+    os.system(f"gsutil rm {bucket_id}/{file_path}")
