@@ -42,4 +42,3 @@ def ls_bucket(target: str = None, bucket_id: str = None):
         os.system(f"gsutil ls {bucket_id}")
     else:
         os.system(f"gsutil ls {bucket_id}/{target}")
-  
