@@ -52,5 +52,5 @@ def remove_from_bucket(file_path: str, bucket_id:str = None):
 
 def write_to_bucket(file: DataFrame, target: str, bucket_id: str =  None):
     """Writes the given file to the given bucket location"""
-    file.to_csv(f'bucket_io/temp.csv')
+    file.write_csv(f'bucket_io/temp.csv')
     copy_to_bucket(file_name = 'bucket_io/temp.csv', target=target, bucket_id=bucket_id)
