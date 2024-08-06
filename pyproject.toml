@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "aoupy"
-version = "0.0.0.1"
+version = "0.0.1"
 dependencies = [
   "polars"
 ]
@@ -20,6 +20,6 @@ readme = "README.md"
 keywords = ["allofus", "bioinformatics"]
 
 classifiers = [
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Programming Language :: Python"
 ]
