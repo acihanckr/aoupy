@@ -39,7 +39,7 @@ def clean_fitbit(fitbit: DataFrame, wear_time: DataFrame, date_of_birth: DataFra
             .filter((pl.col("date").str.to_date(format="%Y-%m-%d")-
                pl.col("date_of_birth").str.to_date(format="%Y-%m-%d %H:%M:%S %Z")).dt.total_hours()/24/365.25>=age_min))
 
-def merge_close_events(df:DataFrame, start_date_col:str, threshold:int, group_by:Optional[str|None]=None, end_date_col:Optional[str|None]=None):
+def combine_events(df:DataFrame, start_date_col:str, threshold:int, group_by:Optional[str|None]=None, end_date_col:Optional[str|None]=None):
     """
     Takes a dataframe with start date and end dates (or only start date assuming end dates are the same) and combines the events if they occured closer than the threshold.
 
