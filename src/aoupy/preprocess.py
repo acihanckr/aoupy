@@ -72,25 +72,26 @@ def combine_events(df:DataFrame, start_date_col:str, threshold:int, group_by:Opt
         end_date_col = "end_date"
     else:
         df.filter(pl.col(end_date_col)>pl.col(start_date_col))
-    if group_by == None:
-        df = df.with_columns(pl.lit(0).alias("groups"))
-        group_by = "groups"
-        no_partition = True
+    if group_by:
+        return (df
+                 .sort([group_by, start_date_col])
+                 .group_by(group_by)
+                 .agg(pl.struct(pl.col(end_date_col).shift(1).alias("next_date"), pl.exclude(group_by))).explode("next_date").unnest("next_date")
+                 .with_columns(pl.when((pl.col(start_date_col) < pl.col("next_date")) & pl.col("next_date").is_not_null()).then(pl.col("next_date")).otherwise(pl.col(start_date_col)).alias(start_date_col)) 
+                 .with_columns(roll_diff = (pl.col(start_date_col)-pl.col("next_date")).dt.total_days())
+                 .with_columns(diff_flag = (pl.col("roll_diff")>threshold) | pl.col("roll_diff").is_null())
+                 .with_columns(pl.col("diff_flag").cum_sum().alias("seq_num"))
+                 .group_by([group_by,"seq_num"]).agg(pl.col(start_date_col).min().alias(start_date_col), pl.col(end_date_col).max().alias(end_date_col))
+                 .drop("seq_num")
+                 .with_columns((pl.col(end_date_col)-pl.col(start_date_col)).dt.total_days().alias("duration")))
     else:
-        no_partition = False
-    data_dict = (df.sort([group_by, start_date_col])
-                .partition_by([group_by], include_key = False, as_dict=True))
-    data_dict = {k:v.with_columns(pl.col(end_date_col).shift(1).alias("next_date"))
-             .with_columns(pl.when((pl.col(start_date_col) < pl.col("next_date")) & pl.col("next_date").is_not_null()).then(pl.col("next_date")).otherwise(pl.col(start_date_col)).alias(start_date_col)) 
-             .with_columns(roll_diff = (pl.col(start_date_col)-pl.col("next_date")).dt.total_days())
-             .with_columns(diff_flag = (pl.col("roll_diff")>threshold) | pl.col("roll_diff").is_null())
-             .with_columns(cumsum = pl.col("diff_flag").cum_sum())
-             .group_by("cumsum").agg(pl.col(start_date_col).min().alias(start_date_col), pl.col(end_date_col).max().alias(end_date_col))
-             .with_columns(pl.lit(k[0]).alias(group_by))
-             .drop("cumsum")
-            .with_columns((pl.col(end_date_col)-pl.col(start_date_col)).dt.total_days().alias("duration"))
-             for k, v in data_dict.items()}
-    if not no_partition:
-        return reduce(lambda a,b: a.vstack(b),data_dict.values())
-    else:
-        return reduce(lambda a,b: a.vstack(b),data_dict.values()).drop("groups")
+        return (df
+                 .sort([start_date_col])
+                 .with_columns(pl.col(end_date_col).shift(1).alias("next_date"))
+                 .with_columns(pl.when((pl.col(start_date_col) < pl.col("next_date")) & pl.col("next_date").is_not_null()).then(pl.col("next_date")).otherwise(pl.col(start_date_col)).alias(start_date_col)) 
+                 .with_columns(roll_diff = (pl.col(start_date_col)-pl.col("next_date")).dt.total_days())
+                 .with_columns(diff_flag = (pl.col("roll_diff")>threshold) | pl.col("roll_diff").is_null())
+                 .with_columns(pl.col("diff_flag").cum_sum().alias("seq_num"))
+                 .group_by(["seq_num"]).agg(pl.col(start_date_col).min().alias(start_date_col), pl.col(end_date_col).max().alias(end_date_col))
+                 .drop("seq_num")
+                 .with_columns((pl.col(end_date_col)-pl.col(start_date_col)).dt.total_days().alias("duration")))
